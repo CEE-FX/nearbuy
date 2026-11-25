@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NearBuy - Sell Near You</title>
+<style>
+*{box-sizing:border-box}body{font-family:system-ui,Arial;margin:0;background:#f0f2f5}
+.top{background:#16a34a;color:#fff;padding:16px}
+.top h1{margin:0;font-size:32px}.top p{margin:4px 0;opacity:.9}
+.wrap{max-width:520px;margin:auto;padding:12px}
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+input,select,textarea{width:100%;padding:13px;border:1px solid #ddd;border-radius:12px;margin:6px 0;font-size:15px}
+button{border:0;border-radius:12px;padding:13px;font-weight:700;cursor:pointer;width:100%;font-size:15px}
+.b-green{background:#16a34a;color:#fff}.b-black{background:#111;color:#fff}.b-light{background:#eef2f7}
+.row{display:flex;gap:8px}.row button{flex:1}
+.prod{background:#fff;border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.prod img{width:100%;height:240px;object-fit:cover;background:#eee}
+.prod div{padding:14px}.price{font-size:21px;font-weight:800}.small{color:#666;font-size:13px}
+#cloud{background:#fff;color:#16a34a;font-size:12px;padding:5px 10px;border-radius:99px;font-weight:700}
+</style></head>
+<body>
+<div class="top"><h1>NearBuy 🛒</h1><p>Sell Near You, Go Viral • <span id="cloud">☁️ Connecting...</span></p><p style="font-size:13px">Post your goods, people near you go see am.</p></div>
+<div class="wrap">
+<div class="card">
+<label>Your Name</label><input id="name" placeholder="e.g. Clive">
+<label>Select Your Country</label><select id="country"><option value="">Select Your Country</option><option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>South Africa</option><option>Cameroon</option><option>Other</option></select>
+<label>Your Area</label><input id="area" placeholder="e.g. Benin City, Abia">
+<label>Your WhatsApp Number</label><input id="phone" placeholder="e.g. 234810...">
+<div class="row" style="margin-top:8px"><button class="b-black" onclick="setMode('buy')">I want to BUY</button><button class="b-green" onclick="setMode('sell')">I want to SELL</button></div>
+<p class="small" id="modeText">You dey BUY mode now</p>
+</div>
+<div class="card" id="sellBox" style="display:none">
+<h3 style="margin:0">+ Add Your Product</h3>
+<input id="pname" placeholder="Product Name e.g. Ear puds">
+<input id="pprice" type="number" placeholder="Price e.g. 10000">
+<input id="pimg" placeholder="Paste Image Link (optional)">
+<input id="pfile" type="file" accept="image/*">
+<textarea id="pdesc" placeholder="Describe am..."></textarea>
+<button class="b-green" onclick="addProduct()">POST PRODUCT - Everybody go see am 🚀</button>
+</div>
+<div class="row"><button class="b-light" onclick="loadProducts()">🔄 Refresh</button><button class="b-light" onclick="clearAll()">Clear All Products</button></div>
+<h3>Products Near You <span id="count"></span></h3>
+<div id="list"></div>
+<p class="small" style="text-align:center">NearBuy • Made by Clive • Free for 7 days</p>
+</div>
+<script>
+const CLOUD_URL="https://api.keyvalue.xyz/nearbuy-clive-old-design-v1/products";
+let mode='buy'; let products=JSON.parse(localStorage.getItem('nearbuy_local')||'[]');
+function setMode(m){mode=m;document.getElementById('modeText').textContent=m==='buy'?'You dey BUY mode now':'You dey SELL mode now - post your product';document.getElementById('sellBox').style.display=m==='sell'?'block':'none';}
+async function loadProducts(){
+ document.getElementById('cloud').textContent='☁️ Syncing...';
+ try{let r=await fetch(CLOUD_URL);let t=await r.text();if(t&&t!=='null'&&t!=='{}'){let d=JSON.parse(t);if(Array.isArray(d))products=d;}
+ document.getElementById('cloud').textContent='✅ Cloud Connected';}catch(e){document.getElementById('cloud').textContent='⚠️ Offline - Phone only';}
+ localStorage.setItem('nearbuy_local',JSON.stringify(products)); render();
+}
+async function saveCloud(){try{await fetch(CLOUD_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(products)});}catch(e){} localStorage.setItem('nearbuy_local',JSON.stringify(products));}
+function render(){let l=document.getElementById('list');document.getElementById('count').textContent='('+products.length+')';if(!products.length){l.innerHTML='<div class="card">No products yet. Be the first! 🚀</div>';return;}l.innerHTML=products.slice().reverse().map(p=>`<div class="prod">${p.img?`<img src="${p.img}">`:''}<div><div class="price">₦${Number(p.price).toLocaleString()} - ${p.name}</div><p>${p.desc||''}</p><p class="small">Seller: <b>${p.seller}</b> • ${p.area}, ${p.country}</p><div class="row"><button class="b-black" onclick="buy('${p.phone}','${p.name}')">Buy / Order</button><button class="b-green" onclick="window.open('https://wa.me/${p.phone}?text='+encodeURIComponent('Hello '+p.seller+', I see your '+p.name+' for NearBuy'),' _blank')">💬 WhatsApp</button></div></div></div>`).join('');}
+function buy(ph,nm){window.open('https://wa.me/'+ph+'?text='+encodeURIComponent('Hello, I wan buy your '+nm+' for NearBuy'),' _blank');}
+async function addProduct(){
+ let name=document.getElementById('name').value.trim(),country=document.getElementById('country').value,area=document.getElementById('area').value.trim(),phone=document.getElementById('phone').value.trim().replace(/[^0-9]/g,''),pname=document.getElementById('pname').value.trim(),pprice=document.getElementById('pprice').value;
+ if(!name||!country||!area||!phone||!pname||!pprice){alert('Fill name, country, area, WhatsApp, product name and price!');return;}
+ if(phone.startsWith('0'))phone='234'+phone.slice(1);
+ let img=document.getElementById('pimg').value.trim();let file=document.getElementById('pfile').files[0];
+ if(file&&!img){img=await new Promise(res=>{let r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file)});}
+ products.push({name:pname,price:pprice,img:img,desc:document.getElementById('pdesc').value,seller:name,country:country,area:area,phone:phone,time:Date.now()});
+ await saveCloud();alert('Posted! ✅ Your brother go see am now if e click Refresh');document.getElementById('pname').value='';document.getElementById('pprice').value='';loadProducts();
+}
+function clearAll(){if(confirm('Clear?')){products=[];localStorage.removeItem('nearbuy_local');render();}}
+loadProducts(); setInterval(loadProducts,15000);
+</script></body></html>
