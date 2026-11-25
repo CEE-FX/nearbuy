@@ -270,7 +270,7 @@ function compressImage(file) {
     let reader = new FileReader();
     reader.onload = (e) => {
       let img = new Image();
-      img.onload = () => {
+      img.onload = () => { 
         let canvas = document.createElement('canvas');
         let maxW = 600;
         let scale = img.width > maxW ? maxW / img.width : 1;
