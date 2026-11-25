@@ -3,33 +3,34 @@
 <title>NearBuy - Sell Near You</title>
 <style>
 *{box-sizing:border-box}body{font-family:system-ui,Arial;margin:0;background:#f6f6f6}
-.top{background:#111;color:#fff;padding:14px 14px 16px}
+.top{background:#111;color:#fff;padding:14px}
 .top-flex{display:flex;justify-content:space-between;align-items:flex-start}
 .top h1{margin:0;font-size:32px}.top h1 span{color:#facc15}
 .top p{margin:2px 0;font-size:12px;opacity:.85}
-.boost{background:#facc15;color:#111;border:0;border-radius:10px;padding:10px 14px;font-weight:800;font-size:14px;line-height:1.2;cursor:pointer}
+.boost{background:#facc15;color:#111;border:0;border-radius:10px;padding:10px 14px;font-weight:800;font-size:14px;cursor:pointer}
 .wrap{max-width:520px;margin:auto;padding:12px}
 .card{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px}
 input,select,textarea{width:100%;padding:13px;border:1px solid #e5e5e5;border-radius:12px;margin:6px 0;font-size:15px;background:#f9f9f9}
 button{border:0;border-radius:99px;padding:13px;font-weight:700;cursor:pointer;width:100%;font-size:15px}
 .b-black{background:#111;color:#fff}.b-light{background:#fff;border:1px solid #ddd;color:#111}
-.row{display:flex;gap:8px}.row button{flex:1}
-.row2{display:flex;gap:8px}.row2>*{flex:1}
+.row{display:flex;gap:8px}.row button{flex:1}.row2{display:flex;gap:8px}.row2>*{flex:1}
 .prod{background:#fff;border-radius:16px;overflow:hidden;margin-bottom:14px}
 .prod img{width:100%;height:240px;object-fit:cover;background:#eee}
 .prod div{padding:14px}.price{font-size:21px;font-weight:800}.small{color:#666;font-size:13px}
-#cloud{color:#16a34a;font-size:12px;font-weight:700}
+#cloud{font-size:12px;font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:99}
+.modal>div{background:#fff;border-radius:16px;padding:18px;width:100%;max-width:400px}
 </style></head>
 <body>
-<div class="top"><div class="top-flex"><div><h1>NearBuy<span>Buy</span></h1><p>Sell Near You • Go Viral • 195 Countries</p></div><div style="text-align:right"><div style="font-size:12px">Guest</div><div style="font-size:11px">NGN • Nigeria</div><button class="boost" onclick="alert('BOOST coming soon! Sellers get 7 DAYS FREE')">🔥 BOOST /<br>SUBSCRIBE</button></div></div></div>
+<div class="top"><div class="top-flex"><div><h1>NearBuy<span>Buy</span></h1><p>Sell Near You • Go Viral • 195 Countries</p></div><div style="text-align:right"><div style="font-size:12px" id="topName">Guest</div><div style="font-size:11px" id="topCountry">NGN • Nigeria</div><button class="boost" onclick="openBoost()">🔥 BOOST /<br>SUBSCRIBE</button></div></div></div>
 <div class="wrap">
 <div class="card">
-<h2 style="margin:0">Welcome to NearBuy 🌍</h2><p class="small" style="margin:6px 0">Real products from real people near you. 195 countries. No fake products.</p>
-<input id="name" placeholder="Your Name">
-<select id="country"><option value="">🌍 Select Your Country</option><option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>South Africa</option><option>Cameroon</option><option>United States</option><option>United Kingdom</option><option>Canada</option><option>India</option><option>Other</option></select>
-<input id="area" placeholder="Your Area e.g. Benin City">
-<input id="location" placeholder="Your Location / Street">
-<div class="row2"><input id="code" value="+" style="max-width:70px"><input id="phone" placeholder="Phone / WhatsApp Number"></div>
+<h2 style="margin:0">Welcome to NearBuy 🌍</h2><p class="small">Real products from real people near you. 195 countries. No fake products.</p>
+<input id="name" placeholder="Your Name" oninput="saveProfile()">
+<select id="country" onchange="onCountry();saveProfile()"></select>
+<input id="area" placeholder="Your Area e.g. Benin City" oninput="saveProfile()">
+<input id="location" placeholder="Your Location / Street" oninput="saveProfile()">
+<div class="row2"><input id="code" readonly style="max-width:80px"><input id="phone" placeholder="Phone / WhatsApp Number" oninput="saveProfile()"></div>
 <div class="row" style="margin-top:6px"><button class="b-light" onclick="setMode('buy')">🛒 I want to BUY</button><button class="b-black" onclick="setMode('sell')">📦 I want to SELL</button></div>
 <p class="small" style="text-align:center" id="modeText">Sellers get <b>7 DAYS FREE</b> store. After that pay monthly or store closes.</p>
 </div>
@@ -37,43 +38,47 @@ button{border:0;border-radius:99px;padding:13px;font-weight:700;cursor:pointer;w
 <h3 style="margin:0">+ Add Your Product</h3>
 <input id="pname" placeholder="Product Name e.g. Ear puds">
 <input id="pprice" type="number" placeholder="Price e.g. 10000">
-<input id="pimg" placeholder="Paste Image Link (optional)">
+<input id="pimg" placeholder="Paste Image Link (optional) - link better than gallery photo">
 <input id="pfile" type="file" accept="image/*">
 <textarea id="pdesc" placeholder="Describe am..."></textarea>
 <button class="b-black" onclick="addProduct()">POST PRODUCT - Everybody go see am 🚀</button>
+<p class="small">Tip: If you use gallery photo wey too big, cloud fit reject am. Use image link or small photo.</p>
 </div>
 <div class="card">
-<div class="row2"><input id="search" placeholder="Search goods... e.g." oninput="render()"><select id="cat" onchange="render()"><option>All Categories</option><option>Phones</option><option>Fashion</option><option>Food</option><option>Electronics</option><option>Other</option></select></div>
-<div class="row2"><input id="searchArea" placeholder="🔍 Search by Area e" oninput="render()"><select id="areaFilter" onchange="render()"><option>All Areas</option></select></div>
+<div class="row2"><input id="search" placeholder="Search goods..." oninput="render()"><select id="cat" onchange="render()"><option>All Categories</option><option>Phones</option><option>Fashion</option><option>Food</option><option>Electronics</option><option>Other</option></select></div>
+<div class="row2"><input id="searchArea" placeholder="🔍 Search by Area" oninput="render()"><select id="areaFilter" onchange="render()"><option>All Areas</option></select></div>
 <div class="row" style="margin-top:10px"><button class="b-black" onclick="setMode('sell')">+ Add Your Product</button><button class="b-light" onclick="clearAll()">Clear All Products</button></div>
 </div>
-<h3 style="text-align:center">No products yet 🛒</h3><p class="small" style="text-align:center">Be the first to post! Click + Add Your Product above.</p>
-<div style="text-align:center"><button class="b-black" style="width:auto;padding:13px 24px" onclick="setMode('sell')">+ Add First Product</button></div>
-<div id="list" style="margin-top:14px"></div>
+<h3 style="text-align:center" id="emptyTitle">No products yet 🛒</h3>
+<div id="list"></div>
 <p class="small" style="text-align:center"><span id="cloud">☁️ Connecting...</span> • NearBuy • Made by Clive • <span id="count"></span></p>
 </div>
+<div class="modal" id="boostModal"><div>
+<h2 style="margin:0">🔥 BOOST Your Store</h2>
+<p class="small">Go to top of search for 7 days. Everybody for your area go see you first!</p>
+<div class="card" style="background:#fef9c3"><b>7 DAYS FREE</b><br>New sellers - 0 Naira<br><button class="b-black" style="margin-top:8px" onclick="claimFree()">Claim FREE 7 Days ✅</button></div>
+<div class="card"><b>BOOST - 1 Week - ₦2,000</b><p class="small">Top for 7 days</p><button class="b-black" onclick="payBoost('1 Week - 2000')">Pay with WhatsApp 💬</button></div>
+<div class="card"><b>SUBSCRIBE - 1 Month - ₦5,000</b><p class="small">Top for 30 days + Verified badge</p><button class="b-black" onclick="payBoost('1 Month - 5000')">Pay with WhatsApp 💬</button></div>
+<button class="b-light" onclick="closeBoost()">Close</button>
+</div></div>
 <script>
-const CLOUD_URL="https://api.keyvalue.xyz/nearbuy-clive-black-yellow-v1/products";
-let mode='buy'; let products=JSON.parse(localStorage.getItem('nearbuy_local')||'[]');
-function setMode(m){mode=m;document.getElementById('modeText').textContent=m==='buy'?'Sellers get 7 DAYS FREE store. After that pay monthly or store closes.':'You dey SELL mode now - post your product';document.getElementById('sellBox').style.display=m==='sell'?'block':'none';if(m==='sell')window.scrollTo({top:200,behavior:'smooth'});}
-async function loadProducts(){
- document.getElementById('cloud').textContent='☁️ Syncing...';
- try{let r=await fetch(CLOUD_URL);let t=await r.text();if(t&&t!=='null'&&t!=='{}'){let d=JSON.parse(t);if(Array.isArray(d))products=d;}
- document.getElementById('cloud').textContent='✅ Cloud Connected';}catch(e){document.getElementById('cloud').textContent='⚠️ Offline - Phone only';}
- localStorage.setItem('nearbuy_local',JSON.stringify(products)); render();
-}
-async function saveCloud(){try{await fetch(CLOUD_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(products)});}catch(e){} localStorage.setItem('nearbuy_local',JSON.stringify(products));}
-function render(){let l=document.getElementById('list');let q=(document.getElementById('search').value||'').toLowerCase();let aq=(document.getElementById('searchArea').value||'').toLowerCase();let filt=products.filter(p=>(p.name+' '+p.desc).toLowerCase().includes(q)&&(p.area||'').toLowerCase().includes(aq));document.getElementById('count').textContent='('+products.length+')';if(!filt.length){if(products.length){l.innerHTML='<div class="card">No match for your search.</div>'}else{l.innerHTML=''}return;}l.innerHTML=filt.slice().reverse().map(p=>`<div class="prod">${p.img?`<img src="${p.img}">`:''}<div><div class="price">₦${Number(p.price).toLocaleString()} - ${p.name}</div><p>${p.desc||''}</p><p class="small">Seller: <b>${p.seller}</b> • ${p.area}, ${p.country}</p><div class="row"><button class="b-black" onclick="buy('${p.phone}','${p.name}')">Buy / Order</button><button class="b-black" style="background:#facc15;color:#111" onclick="window.open('https://wa.me/${p.phone}?text='+encodeURIComponent('Hello '+p.seller+', I see your '+p.name+' for NearBuy'),' _blank')">💬 WhatsApp</button></div></div></div>`).join('');}
-function buy(ph,nm){window.open('https://wa.me/'+ph+'?text='+encodeURIComponent('Hello, I wan buy your '+nm+' for NearBuy'),' _blank');}
-async function addProduct(){
- let name=document.getElementById('name').value.trim(),country=document.getElementById('country').value,area=document.getElementById('area').value.trim(),phone=document.getElementById('phone').value.trim().replace(/[^0-9]/g,''),pname=document.getElementById('pname').value.trim(),pprice=document.getElementById('pprice').value;
- if(!name||!country||!area||!phone||!pname||!pprice){alert('Fill name, country, area, WhatsApp, product name and price!');return;}
- if(phone.startsWith('0'))phone='234'+phone.slice(1);
- let img=document.getElementById('pimg').value.trim();let file=document.getElementById('pfile').files[0];
- if(file&&!img){img=await new Promise(res=>{let r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file)});}
- products.push({name:pname,price:pprice,img:img,desc:document.getElementById('pdesc').value,seller:name,country:country,area:area,phone:phone,time:Date.now()});
- await saveCloud();alert('Posted! ✅');document.getElementById('pname').value='';document.getElementById('pprice').value='';loadProducts();
-}
-function clearAll(){if(confirm('Clear?')){products=[];localStorage.removeItem('nearbuy_local');render();}}
-loadProducts(); setInterval(loadProducts,15000);
+const COUNTRIES=[["Nigeria","+234","NGN"],["Ghana","+233","GHS"],["Kenya","+254","KES"],["South Africa","+27","ZAR"],["Cameroon","+237","XAF"],["United States","+1","USD"],["United Kingdom","+44","GBP"],["Canada","+1","CAD"],["India","+91","INR"],["Australia","+61","AUD"],["France","+33","EUR"],["Germany","+49","EUR"],["Spain","+34","EUR"],["Italy","+39","EUR"],["Brazil","+55","BRL"],["Mexico","+52","MXN"],["Egypt","+20","EGP"],["Morocco","+212","MAD"],["Ethiopia","+251","ETB"],["Uganda","+256","UGX"],["Tanzania","+255","TZS"],["Rwanda","+250","RWF"],["Zambia","+260","ZMW"],["Zimbabwe","+263","ZWL"],["Senegal","+221","XOF"],["Mali","+223","XOF"],["Niger","+227","XOF"],["Chad","+235","XAF"],["Congo","+242","XAF"],["Angola","+244","AOA"],["Algeria","+213","DZD"],["Tunisia","+216","TND"],["Libya","+218","LYD"],["Sudan","+249","SDG"],["Somalia","+252","SOS"],["Ivory Coast","+225","XOF"],["Burkina Faso","+226","XOF"],["Benin","+229","XOF"],["Togo","+228","XOF"],["Sierra Leone","+232","SLE"],["Liberia","+231","LRD"],["Guinea","+224","GNF"],["Gambia","+220","GMD"],["Mauritania","+222","MRU"],["Namibia","+264","NAD"],["Botswana","+267","BWP"],["Lesotho","+266","LSL"],["Eswatini","+268","SZL"],["Mozambique","+258","MZN"],["Malawi","+265","MWK"],["Madagascar","+261","MGA"],["Mauritius","+230","MUR"],["Seychelles","+248","SCR"],["Cape Verde","+238","CVE"],["Gabon","+241","XAF"],["Equatorial Guinea","+240","XAF"],["Central African Republic","+236","XAF"],["Djibouti","+253","DJF"],["Eritrea","+291","ERN"],["Burundi","+257","BIF"],["South Sudan","+211","SSP"],["Pakistan","+92","PKR"],["Bangladesh","+880","BDT"],["Sri Lanka","+94","LKR"],["Nepal","+977","NPR"],["Afghanistan","+93","AFN"],["Iran","+98","IRR"],["Iraq","+964","IQD"],["Saudi Arabia","+966","SAR"],["UAE","+971","AED"],["Qatar","+974","QAR"],["Kuwait","+965","KWD"],["Bahrain","+973","BHD"],["Oman","+968","OMR"],["Jordan","+962","JOD"],["Lebanon","+961","LBP"],["Yemen","+967","YER"],["Syria","+963","SYP"],["Turkey","+90","TRY"],["Israel","+972","ILS"],["Palestine","+970","ILS"],["China","+86","CNY"],["Japan","+81","JPY"],["South Korea","+82","KRW"],["Thailand","+66","THB"],["Vietnam","+84","VND"],["Indonesia","+62","IDR"],["Malaysia","+60","MYR"],["Singapore","+65","SGD"],["Philippines","+63","PHP"],["Myanmar","+95","MMK"],["Cambodia","+855","KHR"],["Laos","+856","LAK"],["Mongolia","+976","MNT"],["Russia","+7","RUB"],["Ukraine","+380","UAH"],["Poland","+48","PLN"],["Netherlands","+31","EUR"],["Belgium","+32","EUR"],["Switzerland","+41","CHF"],["Austria","+43","EUR"],["Sweden","+46","SEK"],["Norway","+47","NOK"],["Denmark","+45","DKK"],["Finland","+358","EUR"],["Ireland","+353","EUR"],["Portugal","+351","EUR"],["Greece","+30","EUR"],["Czech Republic","+420","CZK"],["Hungary","+36","HUF"],["Romania","+40","RON"],["Bulgaria","+359","BGN"],["Croatia","+385","EUR"],["Serbia","+381","RSD"],["Argentina","+54","ARS"],["Chile","+56","CLP"],["Colombia","+57","COP"],["Peru","+51","PEN"],["Venezuela","+58","VES"],["Ecuador","+593","USD"],["Bolivia","+591","BOB"],["Paraguay","+595","PYG"],["Uruguay","+598","UYU"],["Jamaica","+1876","JMD"],["Trinidad and Tobago","+1868","TTD"],["Haiti","+509","HTG"],["Dominican Republic","+1809","DOP"],["Cuba","+53","CUP"],["Panama","+507","PAB"],["Costa Rica","+506","CRC"],["Guatemala","+502","GTQ"],["Honduras","+504","HNL"],["El Salvador","+503","USD"],["Nicaragua","+505","NIO"],["Belize","+501","BZD"],["Bahamas","+1242","BSD"],["Barbados","+1246","BBD"],["Guyana","+592","GYD"],["Suriname","+597","SRD"],["Fiji","+679","FJD"],["New Zealand","+64","NZD"],["Papua New Guinea","+675","PGK"],["Other","+","USD"]];
+const CLOUD_URL="https://api.keyvalue.xyz/nearbuy-clive-final/products";
+let products=JSON.parse(localStorage.getItem('nearbuy_local')||'[]');
+let sel=document.getElementById('country');
+sel.innerHTML='<option value="">🌍 Select Your Country - 195 Countries</option>'+COUNTRIES.map(c=>`<option value="${c[0]}">${c[0]} (${c[1]})</option>`).join('');
+function onCountry(){let v=sel.value;let f=COUNTRIES.find(c=>c[0]===v);if(f){document.getElementById('code').value=f[1];document.getElementById('topCountry').textContent=f[2]+' • '+v;}}
+function saveProfile(){let p={name:document.getElementById('name').value,country:sel.value,area:document.getElementById('area').value,location:document.getElementById('location').value,phone:document.getElementById('phone').value,code:document.getElementById('code').value};localStorage.setItem('nearbuy_profile',JSON.stringify(p));if(p.name)document.getElementById('topName').textContent=p.name;}
+function loadProfile(){try{let p=JSON.parse(localStorage.getItem('nearbuy_profile')||'{}');if(p.name)document.getElementById('name').value=p.name;if(p.country){sel.value=p.country;onCountry();}if(p.area)document.getElementById('area').value=p.area;if(p.location)document.getElementById('location').value=p.location;if(p.phone)document.getElementById('phone').value=p.phone;if(p.code)document.getElementById('code').value=p.code;if(p.name)document.getElementById('topName').textContent=p.name;}catch(e){}}
+function setMode(m){document.getElementById('modeText').textContent=m==='buy'?'Sellers get 7 DAYS FREE store. After that pay monthly or store closes.':'You dey SELL mode now - post your product';document.getElementById('sellBox').style.display=m==='sell'?'block':'none';if(m==='sell')window.scrollTo({top:200,behavior:'smooth'});}
+function openBoost(){document.getElementById('boostModal').style.display='flex';}
+function closeBoost(){document.getElementById('boostModal').style.display='none';}
+function claimFree(){alert('✅ FREE 7 Days Activated! Your store go show for top for 7 days. Post product now!');closeBoost();}
+function payBoost(plan){let n=document.getElementById('name').value||'Seller';window.open('https://wa.me/2340000000000?text='+encodeURIComponent('Hello Clive, I wan pay for NearBuy '+plan+'. My name na '+n),' _blank');}
+async function loadProducts(){document.getElementById('cloud').textContent='☁️ Syncing...';try{let r=await fetch(CLOUD_URL);let t=await r.text();if(t&&t!=='null'&&t!=='{}'){let d=JSON.parse(t);if(Array.isArray(d)&&d.length)products=d;}document.getElementById('cloud').textContent='✅ Cloud Connected - Everybody go see am';document.getElementById('cloud').style.color='green';}catch(e){document.getElementById('cloud').textContent='⚠️ Offline - Check internet, try refresh';document.getElementById('cloud').style.color='orange';}localStorage.setItem('nearbuy_local',JSON.stringify(products));render();}
+async function saveCloud(){try{await fetch(CLOUD_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(products)});}catch(e){}localStorage.setItem('nearbuy_local',JSON.stringify(products));}
+function render(){let l=document.getElementById('list');let q=(document.getElementById('search').value||'').toLowerCase();let aq=(document.getElementById('searchArea').value||'').toLowerCase();let filt=products.filter(p=>(p.name+' '+(p.desc||'')).toLowerCase().includes(q)&&(p.area||'').toLowerCase().includes(aq));document.getElementById('count').textContent='('+products.length+' products)';document.getElementById('emptyTitle').style.display=filt.length?'none':'block';if(!filt.length){l.innerHTML='';return;}l.innerHTML=filt.slice().reverse().map(p=>`<div class="prod">${p.img?`<img src="${p.img}">`:''}<div><div class="price">₦${Number(p.price).toLocaleString()} - ${p.name}</div><p>${p.desc||''}</p><p class="small">Seller: <b>${p.seller}</b> • ${p.area}, ${p.country}</p><div class="row"><button class="b-black" onclick="window.open('https://wa.me/${p.phone}?text='+encodeURIComponent('Hello, I wan buy your '+p.name+' for NearBuy'),' _blank')">Buy / Order</button><button class="b-black" style="background:#facc15;color:#111" onclick="window.open('https://wa.me/${p.phone}?text='+encodeURIComponent('Hello '+p.seller+', I see your '+p.name+' for NearBuy'),' _blank')">💬 WhatsApp</button></div></div></div>`).join('');}
+async function addProduct(){let name=document.getElementById('name').value.trim(),country=sel.value,area=document.getElementById('area').value.trim(),code=document.getElementById('code').value,phone=document.getElementById('phone').value.trim().replace(/[^0-9]/g,''),pname=document.getElementById('pname').value.trim(),pprice=document.getElementById('pprice').value;if(!name||!country||!area||!phone||!pname||!pprice){alert('Fill name, country, area, WhatsApp, product name and price!');return;}saveProfile();if(phone.startsWith('0'))phone=code.replace('+','')+phone.slice(1);if(!phone.startsWith(code.replace('+',''))&&code!=='+')phone=code.replace('+','')+phone;let img=document.getElementById('pimg').value.trim();let file=document.getElementById('pfile').files[0];if(file&&!img){img=await new Promise(res=>{let r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file)});if(img.length>200000){alert('Photo too big! Use image link or smaller photo, e go fail for other phone.');return;}}products.push({name:pname,price:pprice,img:img,desc:document.getElementById('pdesc').value,seller:name,country:country,area:area,phone:phone,time:Date.now()});await saveCloud();alert('Posted! ✅ Now refresh other phone, e go show!');document.getElementById('pname').value='';document.getElementById('pprice').value='';loadProducts();}
+function clearAll(){if(confirm('Clear all for this phone only? Cloud still get am.')){products=[];localStorage.removeItem('nearbuy_local');render();}}
+loadProfile();loadProducts();setInterval(loadProducts,10000);
 </script></body></html>
